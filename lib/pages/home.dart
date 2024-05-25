@@ -80,13 +80,13 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
   void _onVerticalDragEnd(DragEndDetails details) {
     final FrictionSimulation simulation = FrictionSimulation(
-      0.3, // <- the bigger this value, the less friction is applied
+      0.5, // <- the bigger this value, the less friction is applied
       _scrollOffset,
       -details.velocity.pixelsPerSecond.dy / 10 // <- Velocity of inertia
     );
 
     _animationController.duration = Duration(
-      milliseconds: (simulation.timeAtX(simulation.x(double.infinity)) * 10).toInt(),
+      milliseconds: (simulation.timeAtX(simulation.x(double.infinity)) * 100).toInt(),
     );
 
     _animation = Tween<double>(
@@ -104,9 +104,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       body: Listener(
         onPointerSignal: _onPointerSignal,
         child: GestureDetector(
-          onVerticalDragStart: context.isTouchDevice ? (d) => _animationController.stop() : (d) => _animationController.stop(),
-          onVerticalDragUpdate: context.isTouchDevice ? _onVerticalDragUpdate : _onVerticalDragUpdate,
-          onVerticalDragEnd: context.isTouchDevice ? _onVerticalDragEnd : _onVerticalDragEnd,
+          onVerticalDragStart: context.isTouchDevice ? (d) => _animationController.stop() : null,
+          onVerticalDragUpdate: context.isTouchDevice ? _onVerticalDragUpdate : null,
+          onVerticalDragEnd: context.isTouchDevice ? _onVerticalDragEnd : null,
           child: SingleChildScrollView(
             controller: _scrollController,
             physics: const NeverScrollableScrollPhysics(),
