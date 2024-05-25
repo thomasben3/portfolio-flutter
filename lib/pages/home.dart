@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/physics.dart';
 import 'package:thbensem_portfolio/components/skill_progress_indicator.dart';
 import 'package:thbensem_portfolio/extensions/context.dart';
 import 'package:thbensem_portfolio/extensions/list.dart';
@@ -15,6 +16,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
 
+  late final AnimationController  _animationController = AnimationController(vsync: this);
+  late Animation                  _animation;
   final ScrollController          _scrollController = ScrollController();
   final ScrollController          _presentationController = ScrollController();
 
@@ -31,7 +34,12 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   @override
   void initState() {
     super.initState();
-
+    _animationController.addListener(() {
+      setState(() {
+        _scrollOffset = _animation.value;
+        _manageScrollOffset(0); // Update scroll position based on _scrollOffset
+      });
+    });
   }
 
   @override
@@ -71,7 +79,23 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   }
 
   void _onVerticalDragEnd(DragEndDetails details) {
+    final FrictionSimulation simulation = FrictionSimulation(
+      0.3, // <- the bigger this value, the less friction is applied
+      _scrollOffset,
+      -details.velocity.pixelsPerSecond.dy / 10 // <- Velocity of inertia
+    );
 
+    _animationController.duration = Duration(
+      milliseconds: (simulation.timeAtX(simulation.x(double.infinity)) * 10).toInt(),
+    );
+
+    _animation = Tween<double>(
+      begin: _scrollOffset,
+      end: simulation.x(double.infinity),
+    ).animate(CurvedAnimation(parent: _animationController, curve: Curves.decelerate));
+
+    _animationController.reset();
+    _animationController.forward();
   }
 
   @override
@@ -80,8 +104,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       body: Listener(
         onPointerSignal: _onPointerSignal,
         child: GestureDetector(
-          onVerticalDragUpdate: context.isTouchDevice ? _onVerticalDragUpdate : null,
-          onVerticalDragEnd: context.isTouchDevice ? _onVerticalDragEnd : null,
+          onVerticalDragStart: context.isTouchDevice ? (d) => _animationController.stop() : (d) => _animationController.stop(),
+          onVerticalDragUpdate: context.isTouchDevice ? _onVerticalDragUpdate : _onVerticalDragUpdate,
+          onVerticalDragEnd: context.isTouchDevice ? _onVerticalDragEnd : _onVerticalDragEnd,
           child: SingleChildScrollView(
             controller: _scrollController,
             physics: const NeverScrollableScrollPhysics(),
