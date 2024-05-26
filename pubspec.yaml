@@ -67,6 +67,8 @@ flutter:
     - assets/images/programming_languages/react.png
     - assets/images/programming_languages/php.png
     - assets/images/programming_languages/sql.png
+    - assets/images/programming_languages/flutter.png
+    - assets/images/programming_languages/web.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

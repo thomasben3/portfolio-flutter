@@ -1,5 +1,4 @@
 import 'dart:math';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -22,16 +21,19 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   late Animation                  _animation;
   final ScrollController          _scrollController = ScrollController();
   final ScrollController          _presentationController = ScrollController();
+  final GlobalKey                 _wrapKey = GlobalKey();
 
   double _scrollOffset = 0;
 
   double get        _firstPhaseLength => MediaQuery.of(context).size.height;
-  double get        _secondPhaseLength => MediaQuery.of(context).size.height;
+  double get        _secondPhaseLength => MediaQuery.of(context).size.height / 2 + (_wrapHeight ?? 0) / 2;
   List<double> get  _phasesLength => [
     _firstPhaseLength,
     _secondPhaseLength
   ];
   double get        _firstPhaseIndicatorValue => min(_scrollOffset / _firstPhaseLength, 1);
+
+  double? get _wrapHeight => (_wrapKey.currentContext?.findRenderObject() as RenderBox?)?.size.height;
 
   @override
   void initState() {
@@ -106,55 +108,66 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       body: Listener(
         onPointerSignal: _onPointerSignal,
         child: GestureDetector(
-          onVerticalDragStart: context.isTouchDevice ? (d) => _animationController.stop() : (d) => _animationController.stop(),
-          onVerticalDragUpdate: context.isTouchDevice ? _onVerticalDragUpdate : _onVerticalDragUpdate,
-          onVerticalDragEnd: context.isTouchDevice ? _onVerticalDragEnd : _onVerticalDragEnd,
+          onVerticalDragStart: context.isTouchDevice ? (d) => _animationController.stop() : null,
+          onVerticalDragUpdate: context.isTouchDevice ? _onVerticalDragUpdate : null,
+          onVerticalDragEnd: context.isTouchDevice ? _onVerticalDragEnd : null,
           child: SingleChildScrollView(
             controller: _scrollController,
             physics: const NeverScrollableScrollPhysics(),
-            child: Column(
+            child: Stack(
               children: [
-                Stack(
+                Column(
                   children: [
-                    Positioned(
-                      height: MediaQuery.of(context).size.height,
-                      width: MediaQuery.of(context).size.width,
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(
-                          vertical: 8.0,
-                          horizontal: MediaQuery.of(context).size.width * 0.15
-                        ),
-                        child: Wrap(
-                          alignment: WrapAlignment.spaceAround,
-                          runAlignment: WrapAlignment.center,
-                          spacing: MediaQuery.of(context).size.width * 0.05,
-                          runSpacing: MediaQuery.of(context).size.width < 620 ? 15 : 80,
-                          children: [
-                            SkillProgressIndicator(label: 'C', imageName: 'c.png', finalValue: 0.90, value: _firstPhaseIndicatorValue),
-                            SkillProgressIndicator(label: 'C++', imageName: 'cpp.png', finalValue: 0.60, value: _firstPhaseIndicatorValue),
-                            SkillProgressIndicator(label: 'HTML / CSS / JS', imageName: 'moi.png', finalValue: 0.75, value: _firstPhaseIndicatorValue),
-                            SkillProgressIndicator(label: 'Node js', imageName: 'node.png', finalValue: 0.7, value: _firstPhaseIndicatorValue),
-                            SkillProgressIndicator(label: 'React', imageName: 'react.png', finalValue: 0.7, value: _firstPhaseIndicatorValue),
-                            SkillProgressIndicator(label: 'Dart / Flutter', imageName: 'moi.png', finalValue: 0.85, value: _firstPhaseIndicatorValue),
-                            SkillProgressIndicator(label: 'php', imageName: 'php.png', finalValue: 0.55, value: _firstPhaseIndicatorValue),
-                            SkillProgressIndicator(label: 'SQL', imageName: 'sql.png', finalValue: 0.65, value: _firstPhaseIndicatorValue),
-                          ],
-                        ),
+                    Container(
+                      height: MediaQuery.of(context).size.height / 2 - (_wrapHeight ?? 0) / 2,
+                      decoration: BoxDecoration(
+                        color: Colors.green,
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.elliptical(MediaQuery.of(context).size.width / 2, 50),
+                          bottomRight: Radius.elliptical(MediaQuery.of(context).size.width / 2, 50),
+                        )
                       )
                     ),
-                    IntroductionSlider(presentationController: _presentationController),
+                    Column(
+                      children: [
+                        Padding(
+                          key: _wrapKey,
+                          padding: EdgeInsets.symmetric(
+                            vertical: 20,
+                            horizontal: MediaQuery.of(context).size.width * 0.15
+                          ),
+                          child: Wrap(
+                            alignment: WrapAlignment.spaceAround,
+                            runAlignment: WrapAlignment.center,
+                            spacing: MediaQuery.of(context).size.width * 0.05,
+                            runSpacing: MediaQuery.of(context).size.width < 620 ? 15 : 80,
+                            children: [
+                              SkillProgressIndicator(label: 'C', imageName: 'c.png', finalValue: 0.90, value: _firstPhaseIndicatorValue),
+                              SkillProgressIndicator(label: 'C++', imageName: 'cpp.png', finalValue: 0.60, value: _firstPhaseIndicatorValue),
+                              SkillProgressIndicator(label: 'HTML / CSS / JS', imageName: 'web.png', finalValue: 0.75, value: _firstPhaseIndicatorValue),
+                              SkillProgressIndicator(label: 'Node js', imageName: 'node.png', finalValue: 0.7, value: _firstPhaseIndicatorValue),
+                              SkillProgressIndicator(label: 'React', imageName: 'react.png', finalValue: 0.7, value: _firstPhaseIndicatorValue),
+                              SkillProgressIndicator(label: 'Dart / Flutter', imageName: 'flutter.png', finalValue: 0.85, value: _firstPhaseIndicatorValue),
+                              SkillProgressIndicator(label: 'php', imageName: 'php.png', finalValue: 0.55, value: _firstPhaseIndicatorValue),
+                              SkillProgressIndicator(label: 'SQL', imageName: 'sql.png', finalValue: 0.65, value: _firstPhaseIndicatorValue),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    Container(
+                      height: MediaQuery.of(context).size.height,
+                      decoration: BoxDecoration(
+                        color: Colors.green,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.elliptical(MediaQuery.of(context).size.width / 2, 50),
+                          topRight: Radius.elliptical(MediaQuery.of(context).size.width / 2, 50),
+                        )
+                      )
+                    )
                   ],
                 ),
-                Container(
-                  height: MediaQuery.of(context).size.height,
-                  decoration: BoxDecoration(
-                    color: Colors.green,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.elliptical(MediaQuery.of(context).size.width / 2, 50),
-                      topRight: Radius.elliptical(MediaQuery.of(context).size.width / 2, 50),
-                    )
-                  )
-                )
+                IntroductionSlider(presentationController: _presentationController),
               ],
             ),
           ),
