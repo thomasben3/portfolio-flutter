@@ -1,4 +1,8 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:thbensem_portfolio/models/providers/theme.dart';
 
 class SkillProgressIndicator extends StatelessWidget {
   const SkillProgressIndicator({
@@ -22,9 +26,8 @@ class SkillProgressIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Theme.of(context).scaffoldBackgroundColor,
+        color: context.read<AppTheme>().color0,
         borderRadius: BorderRadius.circular(8),
-        boxShadow: [BoxShadow(blurRadius: 5, color: Colors.black.withOpacity(0.7))]
       ),
       width: width,
       height: height,
@@ -44,6 +47,8 @@ class SkillProgressIndicator extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.only(right: 8),
                   child: LinearProgressIndicator(
+                    color: context.read<AppTheme>().color1,
+                    backgroundColor: const Color.fromARGB(255, 185, 185, 185),
                     minHeight: _progressIndicatorHeight,
                     borderRadius: BorderRadius.circular(height + width),
                     value: value * finalValue,
@@ -55,6 +60,44 @@ class SkillProgressIndicator extends StatelessWidget {
           )
         ],
       )
+    );
+  }
+}
+
+class CustomProgressIndicator extends StatelessWidget {
+  const CustomProgressIndicator({
+    super.key,
+    required this.value
+  });
+
+  final double value;
+
+  static const double width = 250;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: MediaQuery.of(context).size.width * 0.5,
+      child: Stack(
+        children: [
+          Container(
+            height: 10,
+            width: width,
+            decoration: BoxDecoration(
+              color: const Color.fromARGB(255, 185, 185, 185),
+              borderRadius: BorderRadius.circular(50)
+            ),
+          ),
+          Container(
+            height: 10,
+            width: min(320 * value, MediaQuery.of(context).size.width),
+            decoration: BoxDecoration(
+              color: context.read<AppTheme>().color1,
+              borderRadius: BorderRadius.circular(50)
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

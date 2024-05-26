@@ -1,6 +1,9 @@
 import 'dart:math';
 
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:thbensem_portfolio/models/providers/theme.dart';
 
 class IntroductionSlider extends StatelessWidget {
   const IntroductionSlider({
@@ -25,7 +28,7 @@ class IntroductionSlider extends StatelessWidget {
                 width: MediaQuery.of(context).size.width,
                 height: MediaQuery.of(context).size.height,
                 decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 34, 126, 192),
+                  color: context.read<AppTheme>().color1,
                   borderRadius: BorderRadius.only(
                     bottomRight: Radius.elliptical(MediaQuery.of(context).size.width, MediaQuery.of(context).size.width / 2),
                     bottomLeft: Radius.elliptical(MediaQuery.of(context).size.width, MediaQuery.of(context).size.width / 2)
@@ -41,12 +44,29 @@ class IntroductionSlider extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       SizedBox(
-                        height: min(MediaQuery.of(context).size.height, 300),
+                        height: MediaQuery.of(context).size.height,
                         width: MediaQuery.of(context).size.width,
-                        child: /* if mediaquery.width < 822 */ Stack(
+                        child: Stack(
                           alignment: Alignment.center,
                           children: [
-                            Image.asset('assets/images/moi.png', height: min(MediaQuery.of(context).size.height, 300)),
+                            Positioned(
+                              top: MediaQuery.of(context).size.height * 0.25,
+                              width: min(400, MediaQuery.of(context).size.width),
+                              child: FittedBox(
+                                child: Container(
+                                  color: context.read<AppTheme>().color0,
+                                  child: TextLiquidFill(
+                                    boxWidth: 800,
+                                    boxBackgroundColor: context.read<AppTheme>().color1,
+                                    waveColor: context.read<AppTheme>().color2,
+                                    loadDuration: Duration.zero,
+                                    loadUntil: 0.45,
+                                    text: 'Portfolio'
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Align(alignment: Alignment.bottomCenter, child: Image.asset('assets/images/moi.png', height: min(MediaQuery.of(context).size.height, 300))),
                             Positioned(
                               bottom: 30,
                               width: MediaQuery.of(context).size.width - 16,

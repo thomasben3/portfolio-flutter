@@ -1,12 +1,16 @@
 import 'dart:math';
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:provider/provider.dart';
 import 'package:thbensem_portfolio/components/introduction_slider.dart';
 import 'package:thbensem_portfolio/components/skill_progress_indicator.dart';
 import 'package:thbensem_portfolio/extensions/context.dart';
 import 'package:thbensem_portfolio/extensions/list.dart';
+import 'package:thbensem_portfolio/models/providers/theme.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -22,11 +26,12 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   final ScrollController          _scrollController = ScrollController();
   final ScrollController          _presentationController = ScrollController();
   final GlobalKey                 _wrapKey = GlobalKey();
+  final GlobalKey                 _secondPhaseKey = GlobalKey();
 
   double _scrollOffset = 0;
 
   double get        _firstPhaseLength => MediaQuery.of(context).size.height;
-  double get        _secondPhaseLength => MediaQuery.of(context).size.height / 2 + (_wrapHeight ?? 0) / 2;
+  double get        _secondPhaseLength => (_secondPhaseHeight ?? 0) - _firstContainerHeight + max(0, ((_wrapHeight ?? 0) - MediaQuery.of(context).size.height));
   List<double> get  _phasesLength => [
     _firstPhaseLength,
     _secondPhaseLength
@@ -34,6 +39,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   double get        _firstPhaseIndicatorValue => min(_scrollOffset / _firstPhaseLength, 1);
 
   double? get _wrapHeight => (_wrapKey.currentContext?.findRenderObject() as RenderBox?)?.size.height;
+  double? get _secondPhaseHeight => (_secondPhaseKey.currentContext?.findRenderObject() as RenderBox?)?.size.height;
+  double get  _firstContainerHeight => max(MediaQuery.of(context).size.height / 2 - (_wrapHeight ?? 0) / 2, 80);
 
   @override
   void initState() {
@@ -44,6 +51,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         _manageScrollOffset(0); // Update scroll position based on _scrollOffset
       });
     });
+    WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));
   }
 
   @override
@@ -82,7 +90,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     _manageScrollOffset(-details.delta.dy);
   }
 
+  // All this function is meant to manage scroll inertia on mobile navigator.
   void _onVerticalDragEnd(DragEndDetails details) {
+
     final FrictionSimulation simulation = FrictionSimulation(
       0.7, // <- the bigger this value, the less friction is applied
       _scrollOffset,
@@ -105,6 +115,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: context.read<AppTheme>().color1,
       body: Listener(
         onPointerSignal: _onPointerSignal,
         child: GestureDetector(
@@ -119,13 +130,30 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 Column(
                   children: [
                     Container(
-                      height: MediaQuery.of(context).size.height / 2 - (_wrapHeight ?? 0) / 2,
+                      width: MediaQuery.of(context).size.width,
+                      height: _firstContainerHeight,
+                      alignment: Alignment.bottomCenter,
                       decoration: BoxDecoration(
-                        color: Colors.green,
+                        color: context.read<AppTheme>().color2,
                         borderRadius: BorderRadius.only(
                           bottomLeft: Radius.elliptical(MediaQuery.of(context).size.width / 2, 50),
                           bottomRight: Radius.elliptical(MediaQuery.of(context).size.width / 2, 50),
                         )
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 15),
+                        child: AnimatedTextKit(repeatForever: true, animatedTexts: [
+                          TypewriterAnimatedText(
+                            'Compétences',
+                            speed: const Duration(milliseconds: 250),
+                            textStyle: TextStyle(
+                              fontSize: 25,
+                              color: context.read<AppTheme>().textColor1,
+                              fontWeight: FontWeight.bold,
+                              // shadows: [Shadow(blurRadius: 1)]
+                            )
+                          )
+                        ]),
                       )
                     ),
                     Column(
@@ -156,15 +184,56 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                       ],
                     ),
                     Container(
-                      height: MediaQuery.of(context).size.height,
+                      constraints: BoxConstraints(minHeight: max(0, MediaQuery.of(context).size.height - (_wrapHeight ?? 0) - _firstContainerHeight)),
+                      key: _secondPhaseKey,
+                      width: MediaQuery.of(context).size.width,
                       decoration: BoxDecoration(
-                        color: Colors.green,
+                        color: context.read<AppTheme>().color2,
                         borderRadius: BorderRadius.only(
                           topLeft: Radius.elliptical(MediaQuery.of(context).size.width / 2, 50),
                           topRight: Radius.elliptical(MediaQuery.of(context).size.width / 2, 50),
                         )
-                      )
-                    )
+                      ),
+                      child: Column(
+                        children: [
+                          const SizedBox(height: 100),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              SizedBox(
+                                width: MediaQuery.of(context).size.width * 0.25,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(left: 15),
+                                  child: Text(
+                                    "Une des premières choses que j'ai appris à propos de informatique, c'est qu'il faut apprendre à apprendre",
+                                    style: TextStyle(color: context.read<AppTheme>().textColor1, fontFamily: 'VictorianBritania', fontSize: 20)
+                                  ).animate(
+                                    effects: [
+                                      MoveEffect(
+                                        begin: Offset(-MediaQuery.of(context).size.width * 0.35, 0),
+                                        end: Offset.zero
+                                      )
+                                    ],
+                                    autoPlay: false,
+                                    value: _scrollOffset / _firstPhaseLength
+                                  ),
+                                )
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text("Apprentissage continu", style: TextStyle(color: context.read<AppTheme>().textColor1, fontSize: 20)),
+                                  CustomProgressIndicator(value: _scrollOffset / _firstPhaseLength)
+                                ],
+                              ),
+                            ],
+                          ),
+                          Text('mdr'),
+                          SizedBox(height: 5000)
+                        ],
+                      ),
+                    ),
                   ],
                 ),
                 IntroductionSlider(presentationController: _presentationController),
