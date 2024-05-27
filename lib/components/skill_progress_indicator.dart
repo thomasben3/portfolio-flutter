@@ -1,5 +1,4 @@
-import 'dart:math';
-
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:thbensem_portfolio/models/providers/theme.dart';
@@ -76,28 +75,26 @@ class CustomProgressIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: MediaQuery.of(context).size.width * 0.5,
-      child: Stack(
-        children: [
-          Container(
-            height: 10,
-            width: width,
-            decoration: BoxDecoration(
-              color: const Color.fromARGB(255, 185, 185, 185),
-              borderRadius: BorderRadius.circular(50)
-            ),
+    return Stack(
+      clipBehavior: Clip.hardEdge,
+      children: [
+        Container(
+          height: 10,
+          width: width,
+          decoration: BoxDecoration(
+            color: const Color.fromARGB(255, 185, 185, 185),
+            borderRadius: BorderRadius.circular(50)
           ),
-          Container(
-            height: 10,
-            width: min(320 * value, MediaQuery.of(context).size.width),
-            decoration: BoxDecoration(
-              color: context.read<AppTheme>().color1,
-              borderRadius: BorderRadius.circular(50)
-            ),
+        ),
+        Container(
+          height: 10,
+          width: clampDouble(width * value, 0, MediaQuery.of(context).size.width),
+          decoration: BoxDecoration(
+            color: context.read<AppTheme>().color1,
+            borderRadius: BorderRadius.circular(50)
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
         fontFamily: 'Nunito',
         scaffoldBackgroundColor: context.read<AppTheme>().color0,
         textTheme: TextTheme(bodyMedium: TextStyle(color: context.read<AppTheme>().textColor0)),
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 34, 126, 192)),
+        colorScheme: ColorScheme.fromSeed(seedColor: context.read<AppTheme>().color1),
         useMaterial3: true,
       ),
       home: const HomePage(),
