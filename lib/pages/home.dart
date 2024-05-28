@@ -1,9 +1,6 @@
 import 'dart:math';
 import 'package:animated_text_kit/animated_text_kit.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
@@ -11,6 +8,7 @@ import 'package:responsive_builder/responsive_builder.dart';
 import 'package:thbensem_portfolio/components/introduction_slider.dart';
 import 'package:thbensem_portfolio/components/skill_progress_indicator.dart';
 import 'package:thbensem_portfolio/models/providers/theme.dart';
+import 'package:thbensem_portfolio/utils/animation_value.dart';
 import 'package:thbensem_portfolio/utils/url_launcher.dart';
 
 class HomePage extends StatefulWidget {
@@ -44,26 +42,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     });
   }
 
-  double _calculateAnimationValue(final BuildContext context, final double scrollOffset, {final bool hasMax = true}) {
-    final RenderObject? renderObject = context.findRenderObject();
-    if (renderObject == null) return 0;
-  
-    final RenderAbstractViewport viewport = RenderAbstractViewport.of(renderObject);
-    final RevealedOffset revealedOffset = viewport.getOffsetToReveal(renderObject, 0.0);
-    final double verticalPosition = revealedOffset.offset;
-  
-    final double screenHeight = MediaQuery.of(context).size.height;
-    final double adjustedDy = verticalPosition - (screenHeight * 1.5);  // Adjusting dy to be relative to the low-center of the screen
-  
-    final double value = (scrollOffset - adjustedDy) / screenHeight;  // Calculate value based on adjustedDy
-  
-    if (hasMax) {
-      return clampDouble(value, 0, 1);
-    }
-    return max(0, value);
-  }
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -93,7 +71,15 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                     )
                   ),
                   _SkillsWrap(wrapKey: _wrapKey, value: min(1, scrollOffset / MediaQuery.of(context).size.height)),
-                  _ContinuousLearning(calculacteAnimationValue: _calculateAnimationValue, isSmallWindow: _isSmallWindow, scrollOffset: scrollOffset)
+                  Builder(
+                    builder: (bContext) => _OtherTechnologies(
+                      scrollOffset: scrollOffset,
+                      value: MediaQuery.of(context).size.longestSide < 860 ? // <-- this check is to verify if the widget is present in the screen,
+                        calculateAnimationValue(bContext, scrollOffset) //     if it is, we use the same animValue as SkillsWrap,
+                        : min(1, scrollOffset / MediaQuery.of(context).size.height) // otherwise we use calculateAnimationValue.
+                    )
+                  ),
+                  _ContinuousLearning(isSmallWindow: _isSmallWindow, scrollOffset: scrollOffset)
                 ],
               ),
             ),
@@ -119,60 +105,49 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                     padding: EdgeInsets.symmetric(vertical: 15),
                     child: _TypewriterTitle('Projets'),
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Column(
-                        children: [
-                          Container(
-                            width: 120,
-                            height: 120,
-                            padding: const EdgeInsets.only(top: 15, bottom: 15, right: 15, left: 10),
-                            decoration: const BoxDecoration(
-                              color: Colors.white,
-                              shape: BoxShape.circle
-                            ),
-                            child: FittedBox(child: Image.asset('assets/images/42.png')),
-                          ),
-                          const SizedBox(height: 20),
-                          ConstrainedBox(
-                            constraints: BoxConstraints(maxWidth: min(MediaQuery.of(context).size.width, 500)),
-                            child: Text(
-                              "A l'école 42, située à Paris, j'ai réalisé des projets variés",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(color: context.read<AppTheme>().textColor1, fontFamily: 'VictorianBritania', fontSize: 20)
-                            ),
-                          )
-                        ],
-                      ),
-                    ],
+                  _ProjectListHeader(
+                    imagePath: 'assets/images/42.png',
+                    description: "A l'école 42, située à Paris, j'ai réalisé des projets variés. En voici quelques exemples.",
                   ),
                   const SizedBox(height: 25),
-                  Builder(
-                    builder: (bContext) => Project(
-                      title: 'Cub3d',
-                      imagePath: 'assets/images/cub3d.gif',
-                      description: "Ce projet réalisé en 2022 est un moteur de ray-casting entièrement réalisé en C.",
-                      url: "https://github.com/thomasben3/cub3d"
-                    ).animate(
-                      effects: const [FadeEffect(), ScaleEffect()],
-                      autoPlay: false,
-                      value: _calculateAnimationValue(bContext, scrollOffset)
-                    )
+                  AnimatedProject(
+                    scrollOffset: scrollOffset,
+                    title: 'Cub3d',
+                    imagePath: 'assets/images/projects/cub3d.gif',
+                    description: "Ce projet réalisé en 2022 est un moteur de ray-casting entièrement réalisé en C.",
+                    url: "https://github.com/thomasben3/cub3d"
+                  ),
+                  const SizedBox(height: 50),
+                  AnimatedProject(
+                    scrollOffset: scrollOffset,
+                    reverse: true,
+                    title: 'ft_transcendance',
+                    imagePath: 'assets/images/projects/pong.png',
+                    description: "Projet final du tronc commun de 42. Effectué en groupe, il s'agit d'une application web de jeu pong en ligne.",
+                    url: "https://github.com/thomasben3/ft_transcendence"
                   ),
                   const SizedBox(height: 50),
                   Builder(
-                    builder: (bContext) => Project(
-                      reverse: true,
-                      title: 'ft_transcendance',
-                      imagePath: 'assets/images/pong.png',
-                      description: "Projet final du tronc commun de 42. Effectué en groupe, il s'agit d'une application web de jeu pong en ligne",
-                      url: "https://github.com/thomasben3/ft_transcendence"
-                    ).animate(
-                      effects: const [FadeEffect(), ScaleEffect()],
-                      autoPlay: false,
-                      value: _calculateAnimationValue(bContext, scrollOffset)
-                    )
+                    builder: (bContext) {
+                      return _ProjectListHeader(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        imagePath: 'assets/images/office.png',
+                        description: "Projet professionel.",
+                      ).animate(
+                        effects: const [ScaleEffect(), RotateEffect(begin: 0.5, alignment: Alignment.centerLeft)],
+                        autoPlay: false,
+                        value: calculateAnimationValue(bContext, scrollOffset)
+                      );
+                    }
+                  ),
+                  const SizedBox(height: 15),
+                  AnimatedProject(
+                    scrollOffset: scrollOffset,
+                    reverse: true,
+                    title: 'Isoclean',
+                    imagePath: 'assets/images/projects/isoclean.png',
+                    imageWidth: 80,
+                    description: "Il s'agit de mon premier projet en tant qu'auto-entrepreneur.\nÀ partir de 2023, ma mission à été de développer une application cross-platform interne pour l'entreprise de lavage de vitres Isoclean, qui compte à ce jour plus de 10000 clients avec 3 filliales. Cette application à pour but de faire des devis automatiquement puis de generer des contrats qui seront synchronisés via l'API du CRM déjà existant. Aujourd'hui l'application génère en moyenne 400 contrats par mois. Elle permet également aux équipes techniques de pouvoir gérer leur rendez vous d'un simple clic lors de l'arrivée chez le client et d'une signature de ce dernier sur l'application au moment de partir."
                   ),
                   const SizedBox(height: 2000)
                   // Text("2022")
@@ -187,21 +162,147 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   }
 }
 
+class _OtherTechnologies extends StatelessWidget {
+  const _OtherTechnologies({
+    required this.scrollOffset,
+    required this.value,
+  });
+
+  final double scrollOffset;
+  final double value;
+
+  static const double       _imageHeight = 40;
+  static final List<Image>  _technologies = [
+    Image.asset('assets/images/technologies/docker.png', height: _imageHeight),
+    Image.asset('assets/images/technologies/git.png', height: _imageHeight),
+    Image.asset('assets/images/technologies/aws.png', height: _imageHeight)
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(
+        _technologies.length,
+        (index) => Padding(
+          padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 30),
+          child: _technologies[index]
+        ).animate(
+          effects: [MoveEffect(begin: Offset(MediaQuery.of(context).size.width, 0))],
+          autoPlay: false,
+          value: value
+        )
+      ),
+    );
+  }
+}
+
+class _ProjectListHeader extends StatelessWidget {
+  const _ProjectListHeader({
+    required this.imagePath,
+    required this.description,
+    this.mainAxisAlignment = MainAxisAlignment.end
+  });
+
+  final String            imagePath;
+  final String            description;
+  final MainAxisAlignment mainAxisAlignment;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: mainAxisAlignment,
+      children: [
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.1),
+          child: Column(
+            children: [
+              Container(
+                width: 120,
+                height: 120,
+                padding: const EdgeInsets.only(top: 15, bottom: 15, right: 15, left: 10),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle
+                ),
+                child: FittedBox(child: Image.asset(imagePath)),
+              ),
+              const SizedBox(height: 20),
+              ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: min(MediaQuery.of(context).size.width * 0.8, 500)),
+                child: Text(
+                  description,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: context.read<AppTheme>().textColor1, fontFamily: 'VictorianBritania', fontSize: 20)
+                ),
+              )
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class AnimatedProject extends StatelessWidget {
+  const AnimatedProject({
+    super.key,
+    required this.title,
+    required this.imagePath,
+    this.imageWidth,
+    required this.description,
+    this.url,
+    required this.scrollOffset,
+    this.reverse = false
+  });
+
+  final String  title;
+  final String  imagePath;
+  final double? imageWidth;
+  final String  description;
+  final String? url;
+  final double  scrollOffset;
+  final bool    reverse;
+
+  @override
+  Widget build(BuildContext context) {
+    return Builder(
+      builder: (bContext) {
+        return Project(
+          title: title,
+          imagePath: imagePath,
+          imageWidth: imageWidth,
+          description: description,
+          reverse: reverse,
+          url: url
+        ).animate(
+          effects: const [FadeEffect(), ScaleEffect()],
+          autoPlay: false,
+          value: calculateAnimationValue(bContext, scrollOffset)
+        );
+      }
+    );
+  }
+}
+
 class Project extends StatelessWidget {
   const Project({
     super.key,
     required this.title,
     required this.imagePath,
     required this.description,
-    required this.url,
-    this.reverse = false
-  });
+    this.url,
+    this.reverse = false,
+    double? imageWidth
+  }) : _imageWidth = imageWidth ?? 170;
 
   final String  title;
   final String  imagePath;
   final String  description;
-  final String  url;
+  final String? url;
   final bool    reverse;
+
+  final double  _imageWidth;
 
   Color darken(Color color, [double amount = .1]) {
     assert(amount >= 0 && amount <= 1);
@@ -229,22 +330,25 @@ class Project extends StatelessWidget {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Image.asset(imagePath, width: 170),
+              Image.asset(imagePath, width: _imageWidth),
               const SizedBox(width: 20),
               ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 200),
+                /* Here the last max() constraints is to keep the same total width as the default size even when _imageWidth change (default is 170) */
+                constraints: BoxConstraints(maxWidth: min(MediaQuery.of(context).size.width - (_imageWidth + 20 + 32), 200 + max(0, 170 - _imageWidth))),
                 child: Text(description, style: TextStyle(color: context.read<AppTheme>().textColor1, fontSize: 17))
               )
-            ]..sort((a, b) => reverse ? 1 : -1),
+            ]..sort((a, b) => reverse ? -1 : 1),
           ),
-          const SizedBox(height: 10),
-          MouseRegion(
-            cursor: SystemMouseCursors.click,
-            child: GestureDetector(
-              onTap: () => launch(url),
-              child: Icon(MdiIcons.github, color: context.read<AppTheme>().textColor1, size: 30)
-            ),
-          )
+          if (url != null) ...[
+            const SizedBox(height: 10),
+            MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: GestureDetector(
+                onTap: () => launch(url!),
+                child: Icon(MdiIcons.github, color: context.read<AppTheme>().textColor1, size: 30)
+              ),
+            )
+          ]
         ],
       ),
     );
@@ -293,7 +397,7 @@ class _SkillsWrap extends StatelessWidget {
         alignment: WrapAlignment.spaceAround,
         runAlignment: WrapAlignment.center,
         spacing: MediaQuery.of(context).size.width * 0.05,
-        runSpacing: MediaQuery.of(context).size.width < 620 ? 15 : 80,
+        runSpacing: MediaQuery.of(context).size.width < 620 ? 15 : 60,
         children: [
           SkillProgressIndicator(label: 'C', imageName: 'c.png', finalValue: 0.90, value: _value),
           SkillProgressIndicator(label: 'C++', imageName: 'cpp.png', finalValue: 0.60, value: _value),
@@ -311,14 +415,11 @@ class _SkillsWrap extends StatelessWidget {
 
 class _ContinuousLearning extends StatelessWidget {
   const _ContinuousLearning({
-    required double Function(BuildContext, double, {bool hasMax})  calculacteAnimationValue,
-    required bool                                   isSmallWindow,
+    required bool isSmallWindow,
     required this.scrollOffset
   }) :
-  _calculateAnimationValue = calculacteAnimationValue,
   _isSmallWindow = isSmallWindow;
 
-  final double Function(BuildContext, double, {bool hasMax}) _calculateAnimationValue;
   final bool                                  _isSmallWindow;
   final double                                scrollOffset;
 
@@ -358,7 +459,7 @@ class _ContinuousLearning extends StatelessWidget {
                         )
                       ],
                       autoPlay: false,
-                      value: _calculateAnimationValue(bContext, scrollOffset)
+                      value: calculateAnimationValue(bContext, scrollOffset)
                     );
                   }
                 )
@@ -373,7 +474,11 @@ class _ContinuousLearning extends StatelessWidget {
                       alignment: Alignment.centerLeft,
                       constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * (_isSmallWindow ? 0.75 : 0.5)),
                       child: Builder(
-                        builder: (bContext) => CustomProgressIndicator(value: _calculateAnimationValue(bContext, scrollOffset, hasMax: false))
+                        builder: (bContext) => CustomProgressIndicator(
+                          value: MediaQuery.of(context).size.longestSide < 935 ? // <-- this check is to verify if the widget is present in the screen,
+                            calculateAnimationValue(bContext, scrollOffset, hasMax: false) //     if it is, we use the same animValue as SkillsWrap,
+                            : scrollOffset / MediaQuery.of(context).size.height // otherwise we use calculateAnimationValue.)
+                        )
                       )
                     ),
                   ],

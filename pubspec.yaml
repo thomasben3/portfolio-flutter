@@ -67,8 +67,15 @@ flutter:
   assets:
     - assets/images/moi.png
     - assets/images/42.png
-    - assets/images/cub3d.gif
-    - assets/images/pong.png
+    - assets/images/office.png
+
+    - assets/images/projects/cub3d.gif
+    - assets/images/projects/pong.png
+    - assets/images/projects/isoclean.png
+
+    - assets/images/technologies/docker.png
+    - assets/images/technologies/git.png
+    - assets/images/technologies/aws.png
 
     - assets/images/programming_languages/c.png
     - assets/images/programming_languages/cpp.png
