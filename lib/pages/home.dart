@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:animated_text_kit/animated_text_kit.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -7,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:thbensem_portfolio/components/introduction_slider.dart';
 import 'package:thbensem_portfolio/components/skill_progress_indicator.dart';
+import 'package:thbensem_portfolio/extensions/list.dart';
 import 'package:thbensem_portfolio/models/providers/theme.dart';
 import 'package:thbensem_portfolio/utils/animation_value.dart';
 import 'package:thbensem_portfolio/utils/url_launcher.dart';
@@ -22,14 +24,26 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
   final GlobalKey                 _wrapKey = GlobalKey();
   final GlobalKey                 _secondPhaseKey = GlobalKey();
+  final GlobalKey                 _thirdPhaseKey = GlobalKey();
 
-  bool  _mounted = false;
+  bool    _mounted = false;
+  double  _scrollOffset = 0;
 
   double? get _wrapHeight => _mounted ? (_wrapKey.currentContext?.findRenderObject() as RenderBox?)?.size.height : 0;
 
-  double get  _firstContainerHeight => max(MediaQuery.of(context).size.height / 2 - (_wrapHeight ?? 0) / 2, 80);
   double? get _secondPhaseHeight => _mounted ? (_secondPhaseKey.currentContext?.findRenderObject() as RenderBox?)?.size.height : 0;
-  bool get    _isSmallWindow => MediaQuery.of(context).size.width < 600;
+  double? get _thirdPhaseHeight => _mounted ? (_thirdPhaseKey.currentContext?.findRenderObject() as RenderBox?)?.size.height : 0;
+
+  List<double> get _phasesLenght => [
+    MediaQuery.of(context).size.height,
+    _secondPhaseHeight ?? 0,
+    _thirdPhaseHeight ?? 0
+  ];
+
+  Color get _backgroundColor {
+    if (_scrollOffset > _phasesLenght.sublist(0, 2).sum) return context.read<AppTheme>().color3;
+    return context.read<AppTheme>().color2;
+  }
 
   @override
   void initState() {
@@ -45,118 +59,161 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: context.read<AppTheme>().color2,
-      body: ScrollTransformView(
-        children: [
-          ScrollTransformItem(
-            key: _secondPhaseKey,
-            builder: (scrollOffset) => Ink(
-              color: context.read<AppTheme>().color1,
-              child: Column(
-                children: [
-                  Container(
-                    width: MediaQuery.of(context).size.width,
-                    height: _firstContainerHeight,
-                    alignment: Alignment.bottomCenter,
-                    decoration: BoxDecoration(
-                      color: context.read<AppTheme>().color2,
-                      borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.elliptical(MediaQuery.of(context).size.width / 2, 50),
-                        bottomRight: Radius.elliptical(MediaQuery.of(context).size.width / 2, 50),
+      backgroundColor: _backgroundColor,
+      body: NotificationListener<ScrollNotification>(
+        onNotification: (ScrollNotification notification) {
+          // if used to not refresh the state for every ScrollNotification received.
+          if (notification.metrics.pixels > _phasesLenght.sublist(0, 2).sum && _scrollOffset < _phasesLenght.sublist(0, 2).sum
+            || notification.metrics.pixels < _phasesLenght.sublist(0, 2).sum && _scrollOffset > _phasesLenght.sublist(0, 2).sum) {
+            setState(() => _scrollOffset = notification.metrics.pixels);
+          }
+          return false ;
+        },
+        child: ScrollTransformView(
+          children: [
+            ScrollTransformItem(
+              key: _secondPhaseKey,
+              builder: (scrollOffset) => Ink(
+                color: context.read<AppTheme>().color1,
+                child: Column(
+                  children: [
+                    Container(
+                      width: MediaQuery.of(context).size.width,
+                      height: max(MediaQuery.of(context).size.height / 2 - (_wrapHeight ?? 0) / 2, 80), // <-- if wrapHeight < screenHeight then it's centered, otherwise there is 80 of height for the _TypewriterTitle
+                      alignment: Alignment.bottomCenter,
+                      decoration: BoxDecoration(
+                        color: context.read<AppTheme>().color2,
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.elliptical(MediaQuery.of(context).size.width / 2, 50),
+                          bottomRight: Radius.elliptical(MediaQuery.of(context).size.width / 2, 50),
+                        )
+                      ),
+                      child: const Padding(
+                        padding: EdgeInsets.only(bottom: 15),
+                        child: _TypewriterTitle("Compétences"),
                       )
                     ),
-                    child: const Padding(
-                      padding: EdgeInsets.only(bottom: 15),
-                      child: _TypewriterTitle("Compétences"),
-                    )
-                  ),
-                  _SkillsWrap(wrapKey: _wrapKey, value: min(1, scrollOffset / MediaQuery.of(context).size.height)),
-                  Builder(
-                    builder: (bContext) => _OtherTechnologies(
+                    _SkillsWrap(wrapKey: _wrapKey, value: min(1, scrollOffset / MediaQuery.of(context).size.height)),
+                    Builder(
+                      builder: (bContext) => _OtherTechnologies(
+                        scrollOffset: scrollOffset,
+                        value: MediaQuery.of(context).size.longestSide < 860 ? // <-- this check is to verify if the widget is present in the screen,
+                          calculateAnimationValue(bContext, scrollOffset) //     if it is, we use the same animValue as SkillsWrap,
+                          : min(1, scrollOffset / MediaQuery.of(context).size.height) // otherwise we use calculateAnimationValue.
+                      )
+                    ),
+                    _ContinuousLearning(scrollOffset: scrollOffset)
+                  ],
+                ),
+              ),
+              offsetBuilder: (scrollOffset) => Offset(0, min(scrollOffset, MediaQuery.of(context).size.height)),
+            ),
+            ScrollTransformItem(
+              builder: (scrollOffset) => const IntroductionSlider(),
+              offsetBuilder: (scrollOffset) => Offset(0, -(_secondPhaseHeight ?? 0)),
+            ),
+            ScrollTransformItem(
+              key: _thirdPhaseKey,
+              builder: (scrollOffset) => Container(
+                width: MediaQuery.of(context).size.width,
+                decoration: BoxDecoration(
+                  color: context.read<AppTheme>().color3,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.elliptical(MediaQuery.of(context).size.width / 2, 50),
+                    topRight: Radius.elliptical(MediaQuery.of(context).size.width / 2, 50),
+                  )
+                ),
+                child: Column(
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 15),
+                      child: _TypewriterTitle('Projets'),
+                    ),
+                    _ProjectListHeader(
+                      imagePath: 'assets/images/42.png',
+                      description: "A l'école 42, située à Paris, j'ai réalisé des projets variés. En voici quelques exemples.",
+                    ),
+                    const SizedBox(height: 25),
+                    AnimatedProject(
                       scrollOffset: scrollOffset,
-                      value: MediaQuery.of(context).size.longestSide < 860 ? // <-- this check is to verify if the widget is present in the screen,
-                        calculateAnimationValue(bContext, scrollOffset) //     if it is, we use the same animValue as SkillsWrap,
-                        : min(1, scrollOffset / MediaQuery.of(context).size.height) // otherwise we use calculateAnimationValue.
+                      title: 'Cub3d',
+                      imagePath: 'assets/images/projects/cub3d.gif',
+                      description: "Ce projet réalisé en 2022 est un moteur de ray-casting entièrement réalisé en C.",
+                      url: "https://github.com/thomasben3/cub3d"
+                    ),
+                    const SizedBox(height: 50),
+                    AnimatedProject(
+                      scrollOffset: scrollOffset,
+                      reverse: true,
+                      title: 'ft_transcendance',
+                      imagePath: 'assets/images/projects/pong.png',
+                      description: "Projet final du tronc commun de 42. Effectué en groupe, il s'agit d'une application web de jeu pong en ligne.",
+                      url: "https://github.com/thomasben3/ft_transcendence"
+                    ),
+                    const SizedBox(height: 50),
+                    Builder(
+                      builder: (bContext) {
+                        return _ProjectListHeader(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          imagePath: 'assets/images/office.png',
+                          description: "Projet professionel.",
+                        ).animate(
+                          effects: const [ScaleEffect(), RotateEffect(begin: 0.5, alignment: Alignment.centerLeft)],
+                          autoPlay: false,
+                          value: calculateAnimationValue(bContext, scrollOffset)
+                        );
+                      }
+                    ),
+                    const SizedBox(height: 15),
+                    AnimatedProject(
+                      scrollOffset: scrollOffset,
+                      reverse: true,
+                      title: 'Isoclean',
+                      imagePath: 'assets/images/projects/isoclean.png',
+                      imageWidth: 80,
+                      description: "Il s'agit de mon premier projet en tant qu'auto-entrepreneur.\nÀ partir de 2023, ma mission à été de développer une application cross-platform interne pour l'entreprise de lavage de vitres Isoclean, qui compte à ce jour plus de 10000 clients avec 3 filliales. Cette application à pour but de faire des devis automatiquement puis de generer des contrats qui seront synchronisés via l'API du CRM déjà existant. Aujourd'hui l'application génère en moyenne 400 contrats par mois. Elle permet également aux équipes techniques de pouvoir gérer leur rendez vous d'un simple clic lors de l'arrivée chez le client et d'une signature de ce dernier sur l'application au moment de partir."
+                    ),
+                    const SizedBox(height: 50),
+                  ],
+                ),
+              ),
+              offsetBuilder: (scrollOffset) => Offset(0, 500 - min(500, scrollOffset - (_secondPhaseHeight ?? 0))),
+            ),
+            ScrollTransformItem(
+              builder: (scrollOffset) => Container(
+                width: MediaQuery.of(context).size.width,
+                padding: const EdgeInsets.symmetric(vertical: 15),
+                height: 100,
+                decoration: BoxDecoration(
+                  color: context.read<AppTheme>().color1,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.elliptical(MediaQuery.of(context).size.width / 2, 50),
+                    topRight: Radius.elliptical(MediaQuery.of(context).size.width / 2, 50),
+                  )
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    RichText(text: TextSpan(
+                      style: TextStyle(color: context.read<AppTheme>().textColor1),
+                      text: "Ce portfolio à été réalisé avec Flutter, vous pouvez retrouver le code source juste ici: ",
+                      children: [
+                        TextSpan(
+                          text: 'https://github.com/thomasben3/portfolio-flutter',
+                          style: const TextStyle(decoration: TextDecoration.underline, fontWeight: FontWeight.bold),
+                          mouseCursor: SystemMouseCursors.click,
+                          recognizer: TapGestureRecognizer()..onTap = () => launch("https://github.com/thomasben3/portfolio-flutter")
+                        )
+                      ]
                     )
                   ),
-                  _ContinuousLearning(isSmallWindow: _isSmallWindow, scrollOffset: scrollOffset)
-                ],
+                  Text("© 2024 Thomas Bensemhoun", style: TextStyle(color: context.read<AppTheme>().textColor1))
+                ]),
               ),
-            ),
-            offsetBuilder: (scrollOffset) => Offset(0, min(scrollOffset, MediaQuery.of(context).size.height)),
-          ),
-          ScrollTransformItem(
-            builder: (scrollOffset) => const IntroductionSlider(),
-            offsetBuilder: (scrollOffset) => Offset(0, -(_secondPhaseHeight ?? 0)),
-          ),
-          ScrollTransformItem(
-            builder: (scrollOffset) => Container(
-              width: MediaQuery.of(context).size.width,
-              decoration: BoxDecoration(
-                color: context.read<AppTheme>().color3,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.elliptical(MediaQuery.of(context).size.width / 2, 50),
-                  topRight: Radius.elliptical(MediaQuery.of(context).size.width / 2, 50),
-                )
-              ),
-              child: Column(
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 15),
-                    child: _TypewriterTitle('Projets'),
-                  ),
-                  _ProjectListHeader(
-                    imagePath: 'assets/images/42.png',
-                    description: "A l'école 42, située à Paris, j'ai réalisé des projets variés. En voici quelques exemples.",
-                  ),
-                  const SizedBox(height: 25),
-                  AnimatedProject(
-                    scrollOffset: scrollOffset,
-                    title: 'Cub3d',
-                    imagePath: 'assets/images/projects/cub3d.gif',
-                    description: "Ce projet réalisé en 2022 est un moteur de ray-casting entièrement réalisé en C.",
-                    url: "https://github.com/thomasben3/cub3d"
-                  ),
-                  const SizedBox(height: 50),
-                  AnimatedProject(
-                    scrollOffset: scrollOffset,
-                    reverse: true,
-                    title: 'ft_transcendance',
-                    imagePath: 'assets/images/projects/pong.png',
-                    description: "Projet final du tronc commun de 42. Effectué en groupe, il s'agit d'une application web de jeu pong en ligne.",
-                    url: "https://github.com/thomasben3/ft_transcendence"
-                  ),
-                  const SizedBox(height: 50),
-                  Builder(
-                    builder: (bContext) {
-                      return _ProjectListHeader(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        imagePath: 'assets/images/office.png',
-                        description: "Projet professionel.",
-                      ).animate(
-                        effects: const [ScaleEffect(), RotateEffect(begin: 0.5, alignment: Alignment.centerLeft)],
-                        autoPlay: false,
-                        value: calculateAnimationValue(bContext, scrollOffset)
-                      );
-                    }
-                  ),
-                  const SizedBox(height: 15),
-                  AnimatedProject(
-                    scrollOffset: scrollOffset,
-                    reverse: true,
-                    title: 'Isoclean',
-                    imagePath: 'assets/images/projects/isoclean.png',
-                    imageWidth: 80,
-                    description: "Il s'agit de mon premier projet en tant qu'auto-entrepreneur.\nÀ partir de 2023, ma mission à été de développer une application cross-platform interne pour l'entreprise de lavage de vitres Isoclean, qui compte à ce jour plus de 10000 clients avec 3 filliales. Cette application à pour but de faire des devis automatiquement puis de generer des contrats qui seront synchronisés via l'API du CRM déjà existant. Aujourd'hui l'application génère en moyenne 400 contrats par mois. Elle permet également aux équipes techniques de pouvoir gérer leur rendez vous d'un simple clic lors de l'arrivée chez le client et d'une signature de ce dernier sur l'application au moment de partir."
-                  ),
-                  const SizedBox(height: 2000)
-                  // Text("2022")
-                ],
-              ),
-            ),
-            offsetBuilder: (scrollOffset) => Offset(0, 400 - min(400, scrollOffset - (_secondPhaseHeight ?? 0))),
-          ),
-        ]
+              offsetBuilder: (scrollOffset) => Offset(0, 500 - min(500, (scrollOffset + 400) - ((_secondPhaseHeight ?? 0) + (_thirdPhaseHeight ?? 0))))
+            )
+          ]
+        ),
       ),
     );
   }
@@ -188,7 +245,7 @@ class _OtherTechnologies extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 30),
           child: _technologies[index]
         ).animate(
-          effects: [MoveEffect(begin: Offset(MediaQuery.of(context).size.width, 0))],
+          effects: [MoveEffect(begin: Offset(MediaQuery.of(context).size.width * (index + 1), 0))],
           autoPlay: false,
           value: value
         )
@@ -415,16 +472,16 @@ class _SkillsWrap extends StatelessWidget {
 
 class _ContinuousLearning extends StatelessWidget {
   const _ContinuousLearning({
-    required bool isSmallWindow,
     required this.scrollOffset
-  }) :
-  _isSmallWindow = isSmallWindow;
+  });
 
-  final bool                                  _isSmallWindow;
   final double                                scrollOffset;
+
 
   @override
   Widget build(BuildContext context) {
+    bool isSmallWindow() => MediaQuery.of(context).size.width < 600;
+
     return Container(
       width: MediaQuery.of(context).size.width,
       alignment: Alignment.topCenter,
@@ -444,7 +501,7 @@ class _ContinuousLearning extends StatelessWidget {
             children: [
               Container(
                 padding: const EdgeInsets.all(15),
-                width: MediaQuery.of(context).size.width * (_isSmallWindow ? 0.7 : 0.25),
+                width: MediaQuery.of(context).size.width * (isSmallWindow() ? 0.7 : 0.25),
                 child: Builder(
                   builder: (bContext) {
     
@@ -472,7 +529,7 @@ class _ContinuousLearning extends StatelessWidget {
                     Text("Apprentissage continu", style: TextStyle(color: context.read<AppTheme>().textColor1, fontSize: 20)),
                     Container(
                       alignment: Alignment.centerLeft,
-                      constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * (_isSmallWindow ? 0.75 : 0.5)),
+                      constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * (isSmallWindow() ? 0.75 : 0.5)),
                       child: Builder(
                         builder: (bContext) => CustomProgressIndicator(
                           value: MediaQuery.of(context).size.longestSide < 935 ? // <-- this check is to verify if the widget is present in the screen,
