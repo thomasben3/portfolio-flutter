@@ -41,6 +41,10 @@ dependencies:
   responsive_builder: ^0.7.0
   material_design_icons_flutter: ^7.0.7296
   url_launcher: ^6.2.6
+  flutter_localizations:
+    sdk: flutter
+  pdf_render: ^1.4.7
+  shared_preferences: ^2.2.3
 
 dev_dependencies:
   flutter_test:
@@ -62,6 +66,7 @@ flutter:
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
+  generate: true
   uses-material-design: true
 
   assets:
@@ -85,6 +90,12 @@ flutter:
     - assets/images/programming_languages/sql.png
     - assets/images/programming_languages/flutter.png
     - assets/images/programming_languages/web.png
+
+    - assets/images/flags/en.png
+    - assets/images/flags/fr.png
+
+    - assets/pdf/cv_fr.pdf
+    - assets/pdf/cv_en.pdf
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

@@ -1,0 +1,24 @@
+{
+    "@@locale": "en",
+    "language": "English",
+
+    "developer": "Developer",
+    "skills": "Skills",
+    "continuousLearning": "Continuous learning",
+    "learningQuote": "One of the first things I learned about computing is that you never stop learning.",
+    "projects": "Projects",
+
+    "projectsOf42": "At 42 school based Paris, I worked on a variety of projects. Here are a few examples.",
+    "cub3dQuote": "This project, which I completed in 2022, is a ray-casting engine built entirely in C.",
+    "transcendenceQuote": "Final project for the 42 core curriculum. Carried out in groups, this is a web application for an online pong game.",
+
+    "professionalProject": "Professional project.",
+    "isocleanQuote": "This is my first project as a freelancer.\nFrom 2023, my mission has been to develop an internal cross-platform application for the window cleaning company Isoclean, which currently has over 10,000 customers with 3 subsidiaries. The aim of this application was to produce estimates automatically and then generate contracts that are synchronised via the existing CRM API. Today, the application generates an average of 400 contracts per month. It also enables the technical teams to manage their appointments with a single click when they arrive at the customer's premises, and for the customer to sign off on the application when they leave.",
+
+    "portfolioMadeWithFlutter": "This portfolio was made with Flutter, you can find the source code here: ",
+
+    "languageSetting": "Language",
+    "theme": "Theme",
+    "cv": "CV",
+    "showCv": "Show CV"
+}

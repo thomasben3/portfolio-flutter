@@ -40,7 +40,7 @@ class SkillProgressIndicator extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               if (label != null)
-                Text(label!),
+                Text(label!, style: TextStyle(color: context.read<AppTheme>().textColor0)),
               SizedBox(
                 width: (width / 4) * 3,
                 child: Padding(

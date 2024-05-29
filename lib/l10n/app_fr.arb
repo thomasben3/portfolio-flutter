@@ -1,0 +1,24 @@
+{
+    "@@locale": "fr",
+    "language": "Français",
+
+    "developer": "Développeur",
+    "skills": "Compétences",
+    "continuousLearning": "Apprentissage continu",
+    "learningQuote": "Une des premières choses que j'ai appris à propos de l'informatique, c'est qu'il ne faut jamais arrêter d'apprendre.",
+    "projects": "Projets",
+
+    "projectsOf42": "À l'école 42, située à Paris, j'ai réalisé des projets variés. En voici quelques exemples.",
+    "cub3dQuote": "Ce projet réalisé en 2022 est un moteur de ray-casting entièrement réalisé en C.",
+    "transcendenceQuote": "Projet final du tronc commun de 42. Effectué en groupe, il s'agit d'une application web de jeu pong en ligne.",
+
+    "professionalProject": "Projet professionel.",
+    "isocleanQuote": "Il s'agit de mon premier projet en tant qu'auto-entrepreneur.\nÀ partir de 2023, ma mission à été de développer une application cross-platform interne pour l'entreprise de lavage de vitres Isoclean, qui compte à ce jour plus de 10000 clients avec 3 filliales. Cette application à pour but de faire des devis automatiquement puis de generer des contrats qui seront synchronisés via l'API du CRM déjà existant. Aujourd'hui l'application génère en moyenne 400 contrats par mois. Elle permet également aux équipes techniques de pouvoir gérer leur rendez vous d'un simple clic lors de l'arrivée chez le client et d'une signature de ce dernier sur l'application au moment de partir.",
+
+    "portfolioMadeWithFlutter": "Ce portfolio à été réalisé avec Flutter, vous pouvez retrouver le code source juste ici : ",
+
+    "languageSetting": "Langue",
+    "theme": "Thème",
+    "cv": "CV",
+    "showCv": "Voir le CV"
+}
