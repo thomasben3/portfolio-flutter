@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:thbensem_portfolio/models/shared_preferences.dart';
+import 'package:thbensem_portfolio/models/local_storage_service.dart';
 
 class AppTheme extends ChangeNotifier {
 
@@ -52,8 +52,8 @@ class AppTheme extends ChangeNotifier {
   Color get textColor0 => themeColors[_themeIndex][4];
   Color get textColor1 => themeColors[_themeIndex][5];
 
-  Future<void> setTheme(int newIndex, {bool setInSP = true}) async {
-    if (setInSP) await SharedPreferencesManager.setThemeIndex(newIndex);
+  void setTheme(int newIndex, {bool setInSP = true}) {
+    if (setInSP) LocalStorageService.setThemeIndex(newIndex);
 
     _themeIndex = newIndex;
     notifyListeners();

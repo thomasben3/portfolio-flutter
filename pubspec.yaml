@@ -44,7 +44,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   pdf_render: ^1.4.7
-  shared_preferences: ^2.2.3
+  localstorage: ^5.0.0
 
 dev_dependencies:
   flutter_test:

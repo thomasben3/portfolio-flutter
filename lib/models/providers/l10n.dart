@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:thbensem_portfolio/models/shared_preferences.dart';
+import 'package:thbensem_portfolio/models/local_storage_service.dart';
 
 
 class L10n extends ChangeNotifier {
@@ -12,9 +12,9 @@ class L10n extends ChangeNotifier {
 
   Locale get currentLocale => _current;
 
-  Future<void> setLocale(String languageCode, {bool setInSP = true}) async {
+  void setLocale(String languageCode, {bool setInSP = true}) {
     if (setInSP) {
-      await SharedPreferencesManager.setLanguageCode(languageCode);
+      LocalStorageService.setLanguageCode(languageCode);
     }
 
     _current = Locale(languageCode);

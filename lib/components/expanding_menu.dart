@@ -199,7 +199,7 @@ class _LanguageMenu extends StatelessWidget {
       children: [
         InkWell(
           hoverColor: context.read<AppTheme>().color0.darken(),
-          onTap: () async => await context.read<L10n>().setLocale('en'),
+          onTap: () => context.read<L10n>().setLocale('en'),
           borderRadius: BorderRadius.circular(100),
           child: Padding(
             padding: const EdgeInsets.all(5),
@@ -208,7 +208,7 @@ class _LanguageMenu extends StatelessWidget {
         ),
         InkWell(
           hoverColor: context.read<AppTheme>().color0.darken(),
-          onTap: () async => await context.read<L10n>().setLocale('fr'),
+          onTap: () => context.read<L10n>().setLocale('fr'),
           borderRadius: BorderRadius.circular(100),
           child: Padding(
             padding: const EdgeInsets.all(5),

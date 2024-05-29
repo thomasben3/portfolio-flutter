@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:localstorage/localstorage.dart';
 import 'package:provider/provider.dart';
+import 'package:thbensem_portfolio/models/local_storage_service.dart';
 import 'package:thbensem_portfolio/models/providers/l10n.dart';
 import 'package:thbensem_portfolio/models/providers/theme.dart';
-import 'package:thbensem_portfolio/models/shared_preferences.dart';
 import 'package:thbensem_portfolio/pages/home.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await initLocalStorage();
+
   runApp(
     MultiProvider(
       providers: [
@@ -32,20 +36,20 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _initLocale().then((languageCode) => context.read<L10n>().setLocale(languageCode));
-      _initTheme().then((themeIndex) => context.read<AppTheme>().setTheme(themeIndex));
+      context.read<L10n>().setLocale(_initLocale());
+      context.read<AppTheme>().setTheme(_initTheme());
     });
   }
 
-  Future<String> _initLocale() async {
-    final String? codeStored = await SharedPreferencesManager.getLanguageCode();
+  String _initLocale() {
+    final String? codeStored = LocalStorageService.getLanguageCode();
     if (codeStored != null) return codeStored;
 
     return 'en';
   }
 
-  Future<int> _initTheme() async {
-    final int? codeStored = await SharedPreferencesManager.getThemeIndex();
+  int _initTheme() {
+    final int? codeStored = LocalStorageService.getThemeIndex();
     if (codeStored != null) return codeStored;
 
     return 0;
