@@ -3,11 +3,11 @@ import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:thbensem_portfolio/components/expanding_menu.dart';
-import 'package:thbensem_portfolio/components/introduction_slider.dart';
+import 'package:thbensem_portfolio/components/home/project.dart';
+import 'package:thbensem_portfolio/components/home/introduction_slider.dart';
 import 'package:thbensem_portfolio/components/skill_progress_indicator.dart';
 import 'package:thbensem_portfolio/extensions/list.dart';
 import 'package:thbensem_portfolio/models/providers/theme.dart';
@@ -129,59 +129,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                         topRight: Radius.elliptical(MediaQuery.of(context).size.width / 2, 50),
                       )
                     ),
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 15),
-                          child: _TypewriterTitle(AppLocalizations.of(context)!.projects),
-                        ),
-                        _ProjectListHeader(
-                          imagePath: 'assets/images/42.png',
-                          description: AppLocalizations.of(context)!.projectsOf42,
-                        ),
-                        const SizedBox(height: 25),
-                        AnimatedProject(
-                          scrollOffset: scrollOffset,
-                          title: 'Cub3d',
-                          imagePath: 'assets/images/projects/cub3d.gif',
-                          description: AppLocalizations.of(context)!.cub3dQuote,
-                          url: "https://github.com/thomasben3/cub3d"
-                        ),
-                        const SizedBox(height: 50),
-                        AnimatedProject(
-                          scrollOffset: scrollOffset,
-                          reverse: true,
-                          title: 'ft_transcendence',
-                          imagePath: 'assets/images/projects/pong.png',
-                          description: AppLocalizations.of(context)!.transcendenceQuote,
-                          url: "https://github.com/thomasben3/ft_transcendence"
-                        ),
-                        const SizedBox(height: 50),
-                        Builder(
-                          builder: (bContext) {
-                            return _ProjectListHeader(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              imagePath: 'assets/images/office.png',
-                              description: AppLocalizations.of(context)!.professionalProject,
-                            ).animate(
-                              effects: const [ScaleEffect(), RotateEffect(begin: 0.5, alignment: Alignment.centerLeft)],
-                              autoPlay: false,
-                              value: calculateAnimationValue(bContext, scrollOffset)
-                            );
-                          }
-                        ),
-                        const SizedBox(height: 15),
-                        AnimatedProject(
-                          scrollOffset: scrollOffset,
-                          reverse: true,
-                          title: 'Isoclean',
-                          imagePath: 'assets/images/projects/isoclean.png',
-                          imageWidth: 80,
-                          description: AppLocalizations.of(context)!.isocleanQuote
-                        ),
-                        const SizedBox(height: 50),
-                      ],
-                    ),
+                    child: _ProjectsList(scrollOffset: scrollOffset),
                   ),
                   offsetBuilder: (scrollOffset) => Offset(0, 500 - min(500, scrollOffset - (_secondPhaseHeight ?? 0))),
                 ),
@@ -197,24 +145,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                         topRight: Radius.elliptical(MediaQuery.of(context).size.width / 2, 50),
                       )
                     ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        RichText(text: TextSpan(
-                          style: TextStyle(color: context.read<AppTheme>().textColor1),
-                          text: AppLocalizations.of(context)!.portfolioMadeWithFlutter,
-                          children: [
-                            TextSpan(
-                              text: 'https://github.com/thomasben3/portfolio-flutter',
-                              style: const TextStyle(decoration: TextDecoration.underline, fontWeight: FontWeight.bold),
-                              mouseCursor: SystemMouseCursors.click,
-                              recognizer: TapGestureRecognizer()..onTap = () => launch("https://github.com/thomasben3/portfolio-flutter")
-                            )
-                          ]
-                        )
-                      ),
-                      Text("© 2024 Thomas Bensemhoun", style: TextStyle(color: context.read<AppTheme>().textColor1))
-                    ]),
+                    child: const _BottomPage(),
                   ),
                   offsetBuilder: (scrollOffset) => Offset(0, 500 - min(500, (scrollOffset + (500 - 120)) - ((_secondPhaseHeight ?? 0) + (_thirdPhaseHeight ?? 0))))
                 )
@@ -228,6 +159,97 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           ],
         ),
       ),
+    );
+  }
+}
+
+class _BottomPage extends StatelessWidget {
+  const _BottomPage();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        RichText(text: TextSpan(
+          style: TextStyle(color: context.read<AppTheme>().textColor1),
+          text: AppLocalizations.of(context)!.portfolioMadeWithFlutter,
+          children: [
+            TextSpan(
+              text: 'https://github.com/thomasben3/portfolio-flutter',
+              style: const TextStyle(decoration: TextDecoration.underline, fontWeight: FontWeight.bold),
+              mouseCursor: SystemMouseCursors.click,
+              recognizer: TapGestureRecognizer()..onTap = () => launch("https://github.com/thomasben3/portfolio-flutter")
+            )
+          ]
+        )
+      ),
+      Text("© 2024 Thomas Bensemhoun", style: TextStyle(color: context.read<AppTheme>().textColor1))
+    ]);
+  }
+}
+
+class _ProjectsList extends StatelessWidget {
+  const _ProjectsList({
+    required this.scrollOffset
+  });
+
+  final double scrollOffset;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 15),
+          child: _TypewriterTitle(AppLocalizations.of(context)!.projects),
+        ),
+        ProjectListHeader(
+          imagePath: 'assets/images/42.png',
+          description: AppLocalizations.of(context)!.projectsOf42,
+        ),
+        const SizedBox(height: 25),
+        AnimatedProject(
+          scrollOffset: scrollOffset,
+          title: 'Cub3d',
+          imagePath: 'assets/images/projects/cub3d.gif',
+          description: AppLocalizations.of(context)!.cub3dQuote,
+          url: "https://github.com/thomasben3/cub3d"
+        ),
+        const SizedBox(height: 50),
+        AnimatedProject(
+          scrollOffset: scrollOffset,
+          reverse: true,
+          title: 'ft_transcendence',
+          imagePath: 'assets/images/projects/pong.png',
+          description: AppLocalizations.of(context)!.transcendenceQuote,
+          url: "https://github.com/thomasben3/ft_transcendence"
+        ),
+        const SizedBox(height: 50),
+        Builder(
+          builder: (bContext) {
+            return ProjectListHeader(
+              mainAxisAlignment: MainAxisAlignment.start,
+              imagePath: 'assets/images/office.png',
+              description: AppLocalizations.of(context)!.professionalProject,
+            ).animate(
+              effects: const [ScaleEffect(), RotateEffect(begin: 0.5, alignment: Alignment.centerLeft)],
+              autoPlay: false,
+              value: calculateAnimationValue(bContext, scrollOffset)
+            );
+          }
+        ),
+        const SizedBox(height: 15),
+        AnimatedProject(
+          scrollOffset: scrollOffset,
+          reverse: true,
+          title: 'Isoclean',
+          imagePath: 'assets/images/projects/isoclean.png',
+          imageWidth: 80,
+          description: AppLocalizations.of(context)!.isocleanQuote
+        ),
+        const SizedBox(height: 50),
+      ],
     );
   }
 }
@@ -262,155 +284,6 @@ class _OtherTechnologies extends StatelessWidget {
           autoPlay: false,
           value: value
         )
-      ),
-    );
-  }
-}
-
-class _ProjectListHeader extends StatelessWidget {
-  const _ProjectListHeader({
-    required this.imagePath,
-    required this.description,
-    this.mainAxisAlignment = MainAxisAlignment.end
-  });
-
-  final String            imagePath;
-  final String            description;
-  final MainAxisAlignment mainAxisAlignment;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: mainAxisAlignment,
-      children: [
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.1),
-          child: Column(
-            children: [
-              Container(
-                width: 120,
-                height: 120,
-                padding: const EdgeInsets.only(top: 15, bottom: 15, right: 15, left: 10),
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle
-                ),
-                child: FittedBox(child: Image.asset(imagePath)),
-              ),
-              const SizedBox(height: 20),
-              ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: min(MediaQuery.of(context).size.width * 0.8, 500)),
-                child: Text(
-                  description,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: context.read<AppTheme>().textColor1, fontFamily: 'VictorianBritania', fontSize: 20)
-                ),
-              )
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class AnimatedProject extends StatelessWidget {
-  const AnimatedProject({
-    super.key,
-    required this.title,
-    required this.imagePath,
-    this.imageWidth,
-    required this.description,
-    this.url,
-    required this.scrollOffset,
-    this.reverse = false
-  });
-
-  final String  title;
-  final String  imagePath;
-  final double? imageWidth;
-  final String  description;
-  final String? url;
-  final double  scrollOffset;
-  final bool    reverse;
-
-  @override
-  Widget build(BuildContext context) {
-    return Builder(
-      builder: (bContext) {
-        return Project(
-          title: title,
-          imagePath: imagePath,
-          imageWidth: imageWidth,
-          description: description,
-          reverse: reverse,
-          url: url
-        ).animate(
-          effects: const [FadeEffect(), ScaleEffect()],
-          autoPlay: false,
-          value: calculateAnimationValue(bContext, scrollOffset)
-        );
-      }
-    );
-  }
-}
-
-class Project extends StatelessWidget {
-  const Project({
-    super.key,
-    required this.title,
-    required this.imagePath,
-    required this.description,
-    this.url,
-    this.reverse = false,
-    double? imageWidth
-  }) : _imageWidth = imageWidth ?? 170;
-
-  final String  title;
-  final String  imagePath;
-  final String  description;
-  final String? url;
-  final bool    reverse;
-
-  final double  _imageWidth;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width),
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-      decoration: BoxDecoration(
-        color: context.read<AppTheme>().color2,
-        borderRadius: BorderRadius.circular(15)
-      ),
-      child: Column(
-        children: [
-          Text(title, style: TextStyle(fontWeight: FontWeight.bold, color: context.read<AppTheme>().textColor1, fontSize: 20)),
-          Container(width: 80, height: 1, color: context.read<AppTheme>().textColor1),
-          const SizedBox(height: 15),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Image.asset(imagePath, width: _imageWidth),
-              const SizedBox(width: 20),
-              ConstrainedBox(
-                /* Here the last max() constraints is to keep the same total width as the default size even when _imageWidth change (default is 170) */
-                constraints: BoxConstraints(maxWidth: min(MediaQuery.of(context).size.width - (_imageWidth + 20 + 32), 200 + max(0, 170 - _imageWidth))),
-                child: Text(description, style: TextStyle(color: context.read<AppTheme>().textColor1, fontSize: 17))
-              )
-            ]..sort((a, b) => reverse ? -1 : 1),
-          ),
-          if (url != null) ...[
-            const SizedBox(height: 10),
-            MouseRegion(
-              cursor: SystemMouseCursors.click,
-              child: GestureDetector(
-                onTap: () => launch(url!),
-                child: Icon(MdiIcons.github, color: context.read<AppTheme>().textColor1, size: 30)
-              ),
-            )
-          ]
-        ],
       ),
     );
   }
@@ -479,7 +352,7 @@ class _ContinuousLearning extends StatelessWidget {
     required this.scrollOffset
   });
 
-  final double                                scrollOffset;
+  final double  scrollOffset;
 
 
   @override

@@ -10,7 +10,7 @@ class IntroductionSlider extends StatelessWidget {
   const IntroductionSlider({ super.key });
 
   Widget _portfolioTitle(BuildContext context) {
-    if (context.isTouchDevice == true) {
+    if (context.isTouchDevice == false) {
       return Container(
         color: context.read<AppTheme>().color0,
         child: TextLiquidFill(

@@ -126,6 +126,7 @@ class _ExpandingMenuState extends State<ExpandingMenu> with SingleTickerProvider
                                 onTap: () => setState(() => _selectedIndex = _themeIndex)
                               ),
                               _CustomListTile(
+                                borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(16)),
                                 isSelected: _selectedIndex == _resumeIndex,
                                 leading: Icon(MdiIcons.fileDocument, color: context.read<AppTheme>().textColor1),
                                 title: Text(AppLocalizations.of(context)!.cv, style: TextStyle(color: context.read<AppTheme>().textColor0)),
@@ -154,20 +155,26 @@ class _CustomListTile extends StatelessWidget {
     required this.leading,
     required this.title,
     required this.onTap,
-    this.isSelected = false
+    this.isSelected = false,
+    this.borderRadius
   });
 
   final Widget          leading;
   final Widget          title;
   final void Function() onTap;
   final bool            isSelected;
+  final BorderRadius?   borderRadius;
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
+      borderRadius: borderRadius,
       onTap: onTap,
       child: Container(
-        color: isSelected ? context.read<AppTheme>().color0.darken() : null, // same color as parent background
+        decoration: BoxDecoration(
+          borderRadius: borderRadius,
+          color: isSelected ? context.read<AppTheme>().color0.darken() : null, // same color as parent background
+        ),
         padding: const EdgeInsets.all(8.0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,

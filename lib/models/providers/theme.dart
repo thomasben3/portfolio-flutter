@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:thbensem_portfolio/models/shared_preferences.dart';
 
 class AppTheme extends ChangeNotifier {
 
   static const List<List<Color>> themeColors = [
+    [
+      Color.fromARGB(255, 236, 221, 205),
+      Color.fromARGB(255, 38, 38, 38),
+      Color.fromARGB(255, 204, 173, 143),
+      Color.fromARGB(255, 177, 132, 86),
+      Colors.black,
+      Colors.white
+    ],
     [
       Color.fromARGB(255, 226, 226, 226),
       Color.fromARGB(255, 56, 114, 223),
@@ -26,14 +33,6 @@ class AppTheme extends ChangeNotifier {
       Color.fromARGB(255, 104, 109, 118),
       Color.fromARGB(255, 55, 58, 64),
       Color.fromARGB(255, 220, 95, 0),
-      Colors.black,
-      Colors.white
-    ],
-    [
-      Color.fromARGB(255, 236, 221, 205),
-      Color.fromARGB(255, 38, 38, 38),
-      Color.fromARGB(255, 177, 132, 86),
-      Color.fromARGB(255, 204, 173, 143),
       Colors.black,
       Colors.white
     ]
