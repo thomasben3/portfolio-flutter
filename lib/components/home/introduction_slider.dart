@@ -9,6 +9,11 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 class IntroductionSlider extends StatelessWidget {
   const IntroductionSlider({ super.key });
 
+  BorderRadius _getBorderRadius(BuildContext context) => BorderRadius.only(
+    bottomRight: Radius.elliptical(MediaQuery.of(context).size.width, MediaQuery.of(context).size.width / 2),
+    bottomLeft: Radius.elliptical(MediaQuery.of(context).size.width, MediaQuery.of(context).size.width / 2)
+  );
+
   Widget _portfolioTitle(BuildContext context) {
     if (context.isTouchDevice == false) {
       return Container(
@@ -27,7 +32,7 @@ class IntroductionSlider extends StatelessWidget {
       WavyAnimatedText(
         'Portfolio',
         textStyle: TextStyle(color: context.read<AppTheme>().color2),
-        speed: const Duration(milliseconds: 500)
+        speed: const Duration(milliseconds: 350)
       )
     ]);
   }
@@ -36,60 +41,45 @@ class IntroductionSlider extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       height: MediaQuery.of(context).size.height,
-      child: Column(
-        children: [
-          Container(
-            width: MediaQuery.of(context).size.width,
+      child: Container(
+        width: MediaQuery.of(context).size.width,
+        height: MediaQuery.of(context).size.height,
+        decoration: BoxDecoration(
+          color: Provider.of<AppTheme>(context).color1,
+          borderRadius: _getBorderRadius(context),
+          boxShadow: const [BoxShadow(blurRadius: 10)]
+        ),
+        child: ClipRRect(
+          borderRadius: _getBorderRadius(context),
+          child: SizedBox(
             height: MediaQuery.of(context).size.height,
-            decoration: BoxDecoration(
-              color: Provider.of<AppTheme>(context).color1,
-              borderRadius: BorderRadius.only(
-                bottomRight: Radius.elliptical(MediaQuery.of(context).size.width, MediaQuery.of(context).size.width / 2),
-                bottomLeft: Radius.elliptical(MediaQuery.of(context).size.width, MediaQuery.of(context).size.width / 2)
-              ),
-              boxShadow: const [BoxShadow(blurRadius: 10)]
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.only(
-                bottomRight: Radius.elliptical(MediaQuery.of(context).size.width, MediaQuery.of(context).size.width / 2),
-                bottomLeft: Radius.elliptical(MediaQuery.of(context).size.width, MediaQuery.of(context).size.width / 2)
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height,
-                    width: MediaQuery.of(context).size.width,
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        Positioned(
-                          top: MediaQuery.of(context).size.height * 0.25,
-                          width: min(400, MediaQuery.of(context).size.width),
-                          child: FittedBox(
-                            child: _portfolioTitle(context),
-                          ),
-                        ),
-                        Align(alignment: Alignment.bottomCenter, child: Image.asset('assets/images/moi.png', height: min(MediaQuery.of(context).size.height, 450))),
-                        Positioned(
-                          bottom: 30,
-                          width: MediaQuery.of(context).size.width - 16,
-                          left: 8,
-                          child: Column(
-                            children: [
-                              const FittedBox(child: Text('Thomas Bensemhoun', style: TextStyle(color: Colors.white, fontSize: 45, fontFamily: 'VictorianBritania'))),
-                              Text(AppLocalizations.of(context)!.developer, style: const TextStyle(color: Colors.white, fontSize: 35)),
-                            ],
-                          )
-                        ),
-                      ],
-                    ),
+            width: MediaQuery.of(context).size.width,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Positioned(
+                  top: MediaQuery.of(context).size.height * 0.25,
+                  width: min(400, MediaQuery.of(context).size.width),
+                  child: FittedBox(
+                    child: _portfolioTitle(context),
                   ),
-                ],
-              ),
+                ),
+                Align(alignment: Alignment.bottomCenter, child: Image.asset('assets/images/moi.png', height: min(MediaQuery.of(context).size.height, 450))),
+                Positioned(
+                  bottom: 30,
+                  width: MediaQuery.of(context).size.width - 16,
+                  left: 8,
+                  child: Column(
+                    children: [
+                      const FittedBox(child: Text('Thomas Bensemhoun', style: TextStyle(color: Colors.white, fontSize: 45, fontFamily: 'VictorianBritania'))),
+                      Text(AppLocalizations.of(context)!.developer, style: const TextStyle(color: Colors.white, fontSize: 35)),
+                    ],
+                  )
+                ),
+              ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }
