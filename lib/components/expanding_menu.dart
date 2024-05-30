@@ -1,10 +1,7 @@
 import 'dart:html' as html;
 import 'dart:math';
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import 'package:pdf_render/pdf_render.dart';
 import 'package:provider/provider.dart';
 import 'package:thbensem_portfolio/extensions/colors.dart';
 import 'package:thbensem_portfolio/models/providers/l10n.dart';
@@ -274,65 +271,29 @@ class _ResumeMenu extends StatelessWidget {
   const _ResumeMenu();
 
   static const double _imageWidth = 70;
-  static const double _a4Ratio = 1.41;
-
-  Future<Uint8List?> _loadPdfFirstPage(BuildContext context) async {
-    final String locale = context.read<L10n>().currentLocale.languageCode.split('_').first;
-    final ByteData data = await rootBundle.load('assets/pdf/cv_$locale.pdf');
-    final Uint8List bytes = data.buffer.asUint8List();
-
-    final PdfDocument document = await PdfDocument.openData(bytes);
-    final page = await document.getPage(1);
-    final PdfPageImage pageImage = await page.render(
-      width: page.width.round(),
-      height: page.height.round()
-    );
-    document.dispose();
-
-    var img = await pageImage.createImageDetached();
-    var imgBytes = await img.toByteData(format: ImageByteFormat.png);
-
-    return imgBytes?.buffer.asUint8List();
-  }
 
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
-        FutureBuilder<Uint8List?>(
-          future: _loadPdfFirstPage(context),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return SizedBox(width: _imageWidth, child: Center(child: CircularProgressIndicator(color: context.read<AppTheme>().textColor1)));
-            } else if (snapshot.hasError) {
-              return SelectableText('Error ${snapshot.error}');
-            } else if (snapshot.hasData) {
-              return Transform(
-                transform: Matrix4.identity()..rotateX(pi)..translate(0, -_imageWidth * _a4Ratio, 0),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(8),
-                    onTap: () => launch("assets/pdf/cv_${context.read<L10n>().currentLocale.languageCode.split('_').first}.pdf"),
-                    child: Tooltip(
-                      enableTapToDismiss: false,
-                      textStyle: const TextStyle(color: Color.fromARGB(255, 114, 114, 114)),
-                      decoration: const BoxDecoration(color: Colors.transparent),
-                      message: AppLocalizations.of(context)!.showCv,
-                      child: Image.memory(snapshot.data!, width: _imageWidth)
-                    )
-                  )
-                )
-              );
-            } else {
-              return const Text('No image');
-            }
-          },
+        ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(8),
+            onTap: () => launch("assets/assets/pdf/cv_${context.read<L10n>().currentLocale.languageCode.split('_').first}.pdf"),
+            child: Tooltip(
+              enableTapToDismiss: false,
+              textStyle: const TextStyle(color: Color.fromARGB(255, 114, 114, 114)),
+              decoration: const BoxDecoration(color: Colors.transparent),
+              message: AppLocalizations.of(context)!.showCv,
+              child: Image.asset('assets/images/cv_sample.png', width: _imageWidth)
+            )
+          )
         ),
         IconButton(
           onPressed: () {
-            final anchorElement = html.AnchorElement(href: "assets/pdf/cv_${context.read<L10n>().currentLocale.languageCode.split('_').first}.pdf");
+            final anchorElement = html.AnchorElement(href: "assets/assets/pdf/cv_${context.read<L10n>().currentLocale.languageCode.split('_').first}.pdf");
             anchorElement.download = "Thomas Bensemhoun - CV";
             anchorElement.click();
           },

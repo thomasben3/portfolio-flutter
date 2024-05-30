@@ -43,7 +43,6 @@ dependencies:
   url_launcher: ^6.2.6
   flutter_localizations:
     sdk: flutter
-  pdf_render: ^1.4.7
   localstorage: ^5.0.0
 
 dev_dependencies:
@@ -73,6 +72,7 @@ flutter:
     - assets/images/moi.png
     - assets/images/42.png
     - assets/images/office.png
+    - assets/images/cv_sample.png
 
     - assets/images/projects/cub3d.gif
     - assets/images/projects/pong.png

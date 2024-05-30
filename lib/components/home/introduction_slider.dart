@@ -70,7 +70,7 @@ class IntroductionSlider extends StatelessWidget {
                             child: _portfolioTitle(context),
                           ),
                         ),
-                        Align(alignment: Alignment.bottomCenter, child: Image.asset('assets/images/moi.png', height: min(MediaQuery.of(context).size.height, 300))),
+                        Align(alignment: Alignment.bottomCenter, child: Image.asset('assets/images/moi.png', height: min(MediaQuery.of(context).size.height, 450))),
                         Positioned(
                           bottom: 30,
                           width: MediaQuery.of(context).size.width - 16,

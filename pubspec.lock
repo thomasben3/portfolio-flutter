@@ -125,14 +125,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.19.0"
-  js:
-    dependency: transitive
-    description:
-      name: js
-      sha256: c1b2e9b5ea78c45e1a0788d29606ba27dc5f71f019f32ca5140f61ef071838cf
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.7.1"
   leak_tracker:
     dependency: transitive
     description:
@@ -269,14 +261,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.2.1"
-  pdf_render:
-    dependency: "direct main"
-    description:
-      name: pdf_render
-      sha256: "0fdf8da394cc444b870ce43cebd0f66a7c1564ec45009861ee884058f31eba28"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.4.7"
   platform:
     dependency: transitive
     description:
